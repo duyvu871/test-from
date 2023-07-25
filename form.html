@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-100">
+    <style>
+     .form-item { max-width: 45%; } #promotion { min-height: 120px; } #content { min-height: 200px; } #price { display: flex; flex-direction: row; } .slide-image_add, .slide-specification_add { display: flex; flex-direction: row; justify-content: flex-start; } .slide-image_add-url, .slide-image_add-typefile {} .slide-image_add-submit, .slide-specification_add-submit { border-radius: 0px 5px 5px 0px; padding: 10px; background-color: rgb(185, 185, 185); } .slide-image_add-item, .slide-specification_add-item { display: flex; flex-direction: row; /* align-items: center; */ justify-content: flex-start; min-height: 60px; border-bottom: 1px solid gray; padding: 2px; } .slide-image_add-item img, .slide-specification_add-item img { /* width: 100px; */ border: 1px solid gray; height: 44px; } .slide-specification_add-item .title { width: 100%; text-align: center; border-right: 1px solid gray; } .slide-image_add-item button, .slide-specification_add-item button { /* background-color: #6a68ff; */ padding: 10px; color: #fff; margin-left: 3px; height: 50px; } .slide-image_add-item .type, .slide-specification_add-item .type { height: 100%; width: 170%; /* font-size: 20px; */ padding: 10px; place-items: center; display: flex; flex-wrap: wrap; } .slide-specification_add-typefile { width: 170% !important; } .slide-image-list, .slide-specification-list { border: 1px solid rgb(0 0 0 / 10%); min-height: 200px; max-height: 400px; /* display: flex; */ /* flex-direction: column; */ overflow-y: scroll; } @media (max-width: 768px) { .form-insert { display: flex; flex-direction: row; } } /* Media query for iPad devices */ @media (min-width: 769px) and (max-width: 1024px) { .form-insert { display: flex; flex-direction: row; justify-content: space-around; } .form-item { width: 100%; } }
+    </style>
+    <div class="container mx-auto mt-8">
+        <div class=" mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Form nhập sản phẩm</h2>
+            <div class="form-insert">
+                <div class="form-item mx-2">
+                    <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="title">Tiêu
+                            đề:</label> <input
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="title" type="text" placeholder="Tiêu đề bài viết" /> </div>
+                    <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="promotion">Khuyến
+                            mãi:</label>
+                        <div id="promotion"></div>
+                        <!-- <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="content" rows="6" placeholder="Nội dung bài viết"></textarea> -->
+                    </div>
+                    <div class="slide-specification" id="slide-specification"> <label
+                            class="block text-gray-700 text-sm font-bold mb-2" for="slide-specification">Slide
+                            ảnh</label>
+                        <div class="slide-specification_add" id="slide-specification"> <input
+                                class="slide-specification_add-url shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                type="text" placeholder="CPU"> <input
+                                class="slide-specification_add-typefile shadow appearance-none border rounded w-[50%] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                type="text" placeholder="i9 13900HX"> <button class="slide-specification_add-submit"
+                                type="button">&plus;</button> </div>
+                        <div class="slide-specification-list"> </div>
+                    </div>
+                </div>
+                <div class="form-item mx-2">
+                    <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="product-code">Mã
+                            sản phẩm:</label> <input
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="product-code" type="text" placeholder="Mã sản phẩm" /> </div>
+                    <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="labels">Thẻ
+                            (Labels):</label> <input
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="labels" type="text" placeholder="label1, label2, label3" /> </div>
+                    <div class="price" id="price">
+                        <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="old-price">Giá
+                                gốc:</label> <input
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                id="old-price" type="number" placeholder="XXXX vnđ" /> </div>
+                        <div class="mb-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="new-price">Giá
+                                bán:</label> <input
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                id="new-price" type="number" placeholder="XXXX vnđ" /> </div>
+                    </div>
+                    <div class="slide-image" id="slide-image"> <label class="block text-gray-700 text-sm font-bold mb-2"
+                            for="slide-image">Slide ảnh</label>
+                        <div class="slide-image_add" id="slide-image"> <input
+                                class="slide-image_add-url shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                type="text" placeholder="https://example.com/placeholder/now.jpg"> <input
+                                class="slide-image_add-typefile shadow appearance-none border rounded w-[50%] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                type="text" placeholder="image/jpg"> <button class="slide-image_add-submit"
+                                type="button">&plus;</button> </div>
+                        <div class="slide-image-list"> </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mx-4"> <label class="block text-gray-700 text-sm font-bold mb-2" for="content">Nội dung:</label>
+                <div id="content"></div> <button id="insertImageBtn" class="rounded-sm p-2 bg-slate-400 my-2 text-xl">
+                    Dán ảnh </button>
+            </div>
+            <div class="flex justify-end my-6"> <button
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit"> Gửi bài viết </button> </div>
+        </div>
+    </div>
+    <script defer>
+        const createElement = (domString) => new DOMParser().parseFromString(domString, "text/html").body.firstChild;
+        const getParent = (element, selector) => {
+            while (element.parentElement) {
+                if (element.parentElement.matches(selector)) {
+                    return element.parentElement;
+                }
+                element = element.parentElement;
+            }
+        };
+        var inputElement = {
+            title: document.querySelector("#title"),
+            promotion: document.querySelector("#promotion"),
+            labels: document.querySelector("#labels"),
+            productCode: document.querySelector("#product-code"),
+            price: {
+                oldPrice: document.querySelector("#old-price"),
+                newPrice: document.querySelector("#new-price"),
+            },
+            imageSlide: document.querySelector(".slide-image-list"),
+            specifications: "",
+        };
+        var promotion = new Quill("#promotion", {
+            theme: "snow",
+        });
+        var quill = new Quill("#content", {
+            theme: "snow",
+            modules: {
+                toolbar: [
+                    [{
+                        header: [1, 2, 3, 4, 5, 6, false],
+                    }, ],
+                    ["bold", "italic", "underline", "strike"],
+                    [{
+                        color: [],
+                    }, {
+                        background: [],
+                    }, ],
+                    [{
+                        list: "ordered",
+                    }, {
+                        list: "bullet",
+                    }, ],
+                    [{
+                        indent: "-1",
+                    }, {
+                        indent: "+1",
+                    }, ],
+                    ["blockquote", "code-block"],
+                    ["link", "image", "video"],
+                    ["clean"],
+                ],
+            },
+        });
+        class InputListManager {
+            constructor(renderList, storageList, {
+                titleElement,
+                contentElement,
+                template
+            }, slideName) {
+                this.renderList = renderList;
+                this.titleElement = titleElement;
+                this.contentElement = contentElement;
+                this.template = template;
+                this.storageList = storageList;
+                this.slideName = slideName;
+            }
+            generateRandomID() {
+                return crypto.randomUUID();
+            }
+            addToList(title, content) {
+                var id = this.generateRandomID();
+                var element = createElement(
+                    ` <div id="data-${id}" class="slide-${this.slideName}_add-item"> ${this.template(title, content, id)} </div> `
+                );
+                this.storageList.push({
+                    title,
+                    content,
+                    id
+                });
+                this.renderList.append(element);
+                this.contentElement.value = "";
+                this.titleElement.value = "";
+            }
+            deleteFromList(id) {
+                this.storageList = this.storageList.filter((item => item.id !== id));
+                document.querySelector(`#data-${id}`).remove();
+            }
+        }
+        var imageSlide = new InputListManager(document.querySelector('.slide-image-list'), [], {
+            titleElement: document.querySelector(".slide-image_add-typefile"),
+            contentElement: document.querySelector(".slide-image_add-url"),
+            template: (title, content, id) => (
+                ` <img src="${content}" /> <div class="type">${title}</div> <button type="button" class="slide-image_add-delete bg-blue-500" data-delete="${id}" onclick="imageSlide.deleteFromList(this.getAttribute('data-delete'))">x</button> `
+            )
+        }, 'image');
+        document.querySelector(".slide-image_add-submit").addEventListener("click", (e) => {
+            var href = imageSlide.contentElement.value;
+            var type = imageSlide.titleElement.value;
+            if (!href && !type) {
+                alert("URL ảnh hoặc định dạng ảnh sai");
+            } else {
+                imageSlide.addToList(type, href);
+            }
+        });
+        var specifications = new InputListManager(document.querySelector('.slide-specification-list'), [], {
+            titleElement: document.querySelector(".slide-specification_add-typefile"),
+            contentElement: document.querySelector(".slide-specification_add-url"),
+            template: (title, content, id) => (
+                ` <div class="title">${title}</div> <div class="type">${content}</div> <button type="button" class="slide-specification_add-delete bg-blue-500" data-delete="${id}" onclick="imageSlide.deleteFromList(this.getAttribute('data-delete'))">x</button> `
+            )
+        }, 'specification');
+        document.querySelector(".slide-specification_add-submit").addEventListener("click", (e) => {
+            var title = specifications.contentElement.value;
+            var content = specifications.titleElement.value;
+            if (!title && !content) {
+                alert("vui lòng nhập lại");
+            } else {
+                specifications.addToList(title, content);
+            }
+        });
+
+        function insertImageByURL() {
+            var url = prompt("Enter the URL of the image:");
+            if (url) {
+                quill.focus();
+                var range = quill.getSelection();
+                quill.insertEmbed(range.index, "image", url, Quill.sources.USER);
+            }
+        }
+        var insertImageBtn = document.getElementById("insertImageBtn");
+        insertImageBtn.addEventListener("click", insertImageByURL);
+        var postData = {
+            kind: "blogger#post",
+            blog: {
+                id: "YOUR_BLOG_ID",
+            },
+            title: "Tiêu đề bài viết",
+            content: ``,
+            labels: [],
+            status: "published",
+            enclosures: [],
+        };
+    </script>
+</body>
+
+</html>
