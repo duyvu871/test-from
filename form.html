@@ -434,9 +434,9 @@ document.querySelector(".slide-specification_add-submit").addEventListener("clic
 function insertImageByURL() {
   var url = prompt("Enter the URL of the image:");
   if (url) {
-    quill.focus();
-    var range = quill.getSelection();
-    quill.insertEmbed(range.index, "image", url, Quill.sources.USER);
+    content.focus();
+    var range = content.getSelection();
+    content.insertEmbed(range.index, "image", url, Quill.sources.USER);
   }
 }
 
