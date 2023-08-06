@@ -10,6 +10,10 @@
 </head>
 <body class="bg-gray-100">
   <style>
+    .ql-editor {
+      white-space: unset !important;
+    }
+
     .render-blog {
       margin: 10px;
       display: flex;
@@ -251,7 +255,7 @@
             </div>
           </div>
 
-          <div class="slide-image mb-2" id="slide-image">
+          <div class="slide-image mb-2" id="slide-image" style="display: none;">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="slide-image_add">Slide ảnh</label>
             <div class="slide-image_add" id="slide-image_add">
               <input
@@ -277,11 +281,22 @@
         <label class="block text-gray-700 text-sm font-bold mb-2" for="content">Nội dung:</label>
 
         <div id="content"></div>
-        <button id="insertImageBtn" class="rounded-sm p-2 bg-slate-400 my-2 text-xl">
+        <button type="button" id="insertImageBtn" class="rounded-sm p-2 bg-slate-400 my-2 text-xl">
           Dán ảnh
         </button>
       </div>
+
+      
+
       <div class="flex justify-end my-6">
+
+        <div class="flex flex-row aitems-center mx-4">
+          <label class="block text-gray-700 text-sm font-bol leading-8 text-center mx-2" for="title">Mã xác nhận</label>
+              <input
+                class="shadow appearance-none border rounded w-[150px] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="passCode" type="text" placeholder="Mã xác nhận" />
+        </div>
+
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="button" id="send-post">
@@ -302,6 +317,17 @@ const getParent = (element, selector) => {
     element = element.parentElement;
   }
 };
+
+class ErrorManager {
+  constructor() {
+    this.collection = [];
+  }
+
+  throwError(message) {
+    this.collection.push(message);
+    // throw new Error(message);
+  }
+}
 
 class ButtonManager {
   constructor(element = document.body, template) {
@@ -331,7 +357,7 @@ class ButtonManager {
 
   addEvent(event, handle) {
     this.element.addEventListener(event, (e) => {
-      if (e.target.getAttribute("disabled").toString() === "false") {
+      if (e.target.getAttribute("button-disable").toString() === "false") {
         handle(e.target);
       }
     });
@@ -342,14 +368,14 @@ class ButtonManager {
   setDisable() {
     this.element.classList.remove("button-enable");
     this.element.classList.add("button-disable");
-    this.element.setAttribute("disabled", true);
+    this.element.setAttribute("button-disable", true);
     return this;
   }
 
   setEnable() {
     this.element.classList.remove("button-disable");
     this.element.classList.add("button-enable");
-    this.element.setAttribute("disabled", false);
+    this.element.setAttribute("button-disable", false);
     return this;
   }
 
@@ -360,7 +386,7 @@ class ButtonManager {
       window.open(href, '_blank');
     }
 
-    return this
+    return this;
   }
 }
 
@@ -399,14 +425,10 @@ class InputListManager extends ButtonManager {
     this.storageList = storageList;
     this.slideName = slideName;
   }
-  // generateRandomID() {
-  //   return crypto.randomUUID();
-  // }
   static findItem(targetId, list) {
     const index = list.findIndex(item => item.id === targetId);
     return index;
   }
-
   addToList(title, content) {
     var id = this.generateRandomID();
     var list = this.storageList;
@@ -416,7 +438,6 @@ class InputListManager extends ButtonManager {
         ${this.template(title, content, id)}
       </div>
     `);
-
     if (this.slideName == 'specification') {
       element.querySelector('.type').addEventListener('input', (e) => {
         upgradeKeyOrValueOfField(list, id, "content", e.target.innerText);
@@ -425,12 +446,10 @@ class InputListManager extends ButtonManager {
         upgradeKeyOrValueOfField(list, id, "title", e.target.innerText);
       })
     }
-    
     this.storageList.push({ title, content, id });
     this.renderList.append(element);
     this.contentElement.value = "";
     this.titleElement.value = "";
-
     return this;
   }
   deleteFromList(id) {
@@ -441,21 +460,21 @@ class InputListManager extends ButtonManager {
   }
   upgradeKeyOrValueOfField(list, id, key, value) {
     var index = InputListManager.findItem(id, list);
-
     if (index !== -1) {
       list[index][key] = value;
     } else {
       console.log(`Item with id ${targetId} not found`);
     }
-
     return this;
   }
 }
 
-var PASS_CODE = prompt("Nhập mã xác nhận");
+// var PASS_CODE = prompt("Nhập mã xác nhận");
 var preventSendPostButton = false;
 var readyToPost = false;
 var postData = {};
+const BloggerId = '8739244822710221933';
+var ErrorCollection = new ErrorManager();
 
 var blogPostRedirect = new ButtonManager(document.querySelector('.render-blog-post_redirect'));
 blogPostRedirect.setDisable();
@@ -464,6 +483,7 @@ blogEditPage.setDisable();
 var copyContent = new ButtonManager(document.querySelector('.render-blog-copycontent'));
 copyContent.setDisable();
 copyContent.addEvent('click',(element) => {
+ try {
   if (isNotEmpty(postData.content)) {
     if (navigator.clipboard) {
       console.log('Clipboard API available');
@@ -472,18 +492,51 @@ copyContent.addEvent('click',(element) => {
       }) ;
     }
   }
+ } catch (error) {
+    ErrorCollection.throwError(message);
+ }
 })
-
-// var 
 
 var inputElement = {
   title: document.querySelector("#title"),
-  // promotion: document.querySelector("#promotion"),
+  promotion: document.querySelector("#promotion"),
   labels: document.querySelector("#labels"),
   productCode: document.querySelector("#product-code"),
   oldPrice: document.querySelector("#old-price"),
   newPrice: document.querySelector("#new-price"),
+  passCode: document.querySelector('#passCode')
 };
+
+// var BlockDiv = Quill.import('blots/block');
+// class DivBlot extends BlockDiv { }
+// DivBlot.blotName = 'div';
+// DivBlot.tagName = 'div';
+// Quill.register(DivBlot);
+
+var Delta = Quill.import('delta');
+var Parchment = Quill.import('parchment');
+
+class StableElement extends Parchment.Embed {
+  static create(value) {
+    let node = super.create();
+    node.innerHTML = value.text;
+    node.setAttribute('style', value.style);
+    node.classList.add('ql-center');
+    return node;
+  }
+  static value(node) {
+    return {
+      text: node.innerText,
+      style: node.getAttribute('style')
+    };
+  }
+
+}
+StableElement.blotName = 'separator';
+StableElement.tagName = 'div';
+StableElement.className = 'separator';
+StableElement.style = `clear: both; height:fit-content;`;
+Quill.register(StableElement);
 
 var promotion = new Quill("#promotion", {
   theme: "snow",
@@ -563,7 +616,6 @@ document
   .addEventListener("click", (e) => {
     var href = imageSlide.contentElement.value;
     var type = imageSlide.titleElement.value;
-
     if (!href && !type) {
       alert("URL ảnh hoặc định dạng ảnh sai");
     } else {
@@ -593,7 +645,6 @@ document
   .addEventListener("click", (e) => {
     var content = specifications.contentElement.value;
     var title = specifications.titleElement.value;
-
     if (!title && !content) {
       alert("vui lòng nhập lại");
     } else {
@@ -604,12 +655,20 @@ document
 function insertImageByURL() {
   var url = prompt("Enter the URL of the image:");
   if (url) {
-    quill.focus();
-    var range = quill.getSelection();
-    quill.insertEmbed(range.index, "image", url, Quill.sources.USER);
+    content.focus();
+    var range = content.getSelection();
+    var value = {
+      text: `
+        <a href="${url}" style="display: block; padding: 1em 0; text-align: center; ">
+          <img alt="" border="0" height="320" data-original-height="1313" data-original-width="1120" src="${url}"/>
+        </a>
+      `,
+      style: 'clear: both;'
+    };
+    content.insertEmbed(range.index, 'separator', value, Quill.sources.USER);
+    // content.clipboard.dangerouslyPasteHTML(range.index, );
   }
 }
-
 var insertImageBtn = document.getElementById("insertImageBtn");
 insertImageBtn.addEventListener("click", insertImageByURL);
 
@@ -628,6 +687,7 @@ function getAllPostData() {
   var blogLabels = inputElement.labels.value;
   var oldPrice = inputElement.oldPrice.value;
   var newPrice = inputElement.newPrice.value;
+  var PASS_CODE = inputElement.passCode.value;
 
   var promotionData = promotion.root.innerHTML;
   var contentData = content.root.innerHTML;
@@ -645,7 +705,6 @@ function getAllPostData() {
     !isNotEmpty(promotionData) ||
     !isNotEmpty(contentData) ||
     !isNotEmpty(descriptionData) ||
-    !isNotEmpty(imageSlideData) ||
     !isNotEmpty(specificationsData) ||
     !isNotEmpty(PASS_CODE)
   ) {
@@ -653,11 +712,12 @@ function getAllPostData() {
     return;
   }
 
+  postData.accessCode = PASS_CODE;
   postData.title = blogTitle;
-  postData.enclosures = imageSlideData.map((item) => ({
-    href: item.content,
-    mineType: item.title,
-  }));
+  // postData.enclosures = imageSlideData.map((item) => ({
+  //   href: item.content,
+  //   mineType: item.title,
+  // }));
   postData.labels = blogLabels.split(",").map((label) => label.trim());
   var contentSource = `
   <style>
@@ -702,61 +762,7 @@ function getAllPostData() {
 
   postData.content = contentSource;
   postData.productCode = blogProductCode;
-
   readyToPost = true;
-}
-
-function submitForm() {
-  preventSendPostButton = true;
-
-  const formData = {
-    "entry.464794266": postData.title.replaceAll("\n", "").replaceAll("\t", ""),
-    "entry.2142916552": postData.content,
-    "entry.127641323": postData.productCode,
-    "entry.2136158832": encodeURI(JSON.stringify(postData.labels)),
-    "entry.1771015153": encodeURI(JSON.stringify(postData.enclosures)),
-    "entry.143041727": PASS_CODE,
-  };
-
-  const response = fetch(
-    "https://script.google.com/macros/s/AKfycbxlw4Ir6c9mJ_CO23f-fzTc4ffzXXniIoOsltmo78p-ybzTcRpTksj1OXcqwTENTAtWgA/exec",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      // mode: "no-cors",
-      redirect: "follow",
-      body: new URLSearchParams(formData).toString(),
-    }
-  );
-
-  response
-    // .then(res => res.json())
-    .then(async (response) => {
-      preventSendPostButton = false;
-      console.log(response);
-      if (response.ok) {
-        alert("Form submitted successfully!");
-
-        var createdPostReturnData = await getRecentBlogInfo();
-        console.log(createdPostReturnData);
-        if(isNotEmpty(createdPostReturnData)) {
-          blogEditPage.setRedirect(data.editpage).setEnable();
-          blogPostRedirect.setRedirect(data.postUrl).setEnable();
-          copyContent.setEnable();
-        } 
-         
-      } else {
-        alert("Form submission failed. Please try again later.");
-      }
-    })
-    .catch((error) => {
-      alert(
-        "An error occurred while submitting the form. Please try again later."
-      );
-      console.error("Error:", error);
-    });
 }
 
 document.querySelector("#send-post").addEventListener("click", (e) => {
@@ -768,10 +774,9 @@ document.querySelector("#send-post").addEventListener("click", (e) => {
       alert("Hãy chờ một lúc nữa để post xong");
     }
   } else {
-    alert("hãy xem lại, còn thiếu một nội dung gì đó");
+    alert("hãy xem lại, còn thiếu nội dung gì đó");
   }
 });
-
 
 // var postData = {
 //   title: "OPPO Find N2 Flip 5G",
@@ -799,18 +804,86 @@ document.querySelector("#send-post").addEventListener("click", (e) => {
 //   productCode: "ưefwef",
 // };
 
-async function getRecentBlogInfo() {
-  const url =
-    "https://script.google.com/macros/s/AKfycbxlw4Ir6c9mJ_CO23f-fzTc4ffzXXniIoOsltmo78p-ybzTcRpTksj1OXcqwTENTAtWgA/exec";
-  const response = await fetch(url + "?callback=getRecentPost");
-  const data = await response.json();
-  // Render edit page redirect and blog post
-  return data;
+async function getAccessToken(accessCode) {
+  try {
+    const appUrl = 'https://script.google.com/macros/s/AKfycbyFZaqTkKhn6ic5uh0dQFO3_Y8VYnrBHUieQhlXgDxU4pO1jAqFDF8-rBKJpVr7st-y_g/exec';
+    const accessTokenResponse = await fetch(appUrl + `?handle=getAccessToken` + `&accessCode=${accessCode}`);
+    return accessTokenResponse.json();
+  } catch (error) {
+    ErrorCollection.throwError(error);
+  }
 }
 
+async function insertPost(blogId, access_token) {
+  const url = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts/`;
+  var payload = {
+    kind: "blogger#post",
+    blog: {id: blogId},
+    title: postData.title,
+    content: postData.content,
+    labels: postData.labels,
+  };
 
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      "headers": {
+        "Authorization": `Bearer ${access_token}`,
+        "Content-Type": 'application/json'
+      }, 
+      "body": JSON.stringify(payload)
+    });
+    return response;
+  } catch (error) {
+    ErrorCollection.throwError(error);
+  }
+}
 
+async function submitForm() {
+  try {
+    preventSendPostButton = true;
+    const accessTokenResponse = await getAccessToken(postData.accessCode);
+    const access_token = accessTokenResponse.access_token;
+    if (!access_token) {
+      alert('mã xác nhận không đúng');
+      return;
+    }
+    const blogCreatedResponse = insertPost(BloggerId, access_token);
+    blogCreatedResponse
+        .then(res => res.json())
+        .then(async (response) => {
+          preventSendPostButton = false;
+          console.log(response);
+          if (response.url) {
+            alert("Thành công tạo post!");
+            if(isNotEmpty(response)) {
+              blogEditPage.addEvent('click', (element) => {
+                window.open(`https://www.blogger.com/u/1/blog/post/edit/${BloggerId}/${response.id}`, '_blank');
+              }).setEnable();
+              blogPostRedirect.addEvent('click', (element) => {
+                window.open((response.url), '_blank');
+              }).setEnable();
+              copyContent.setEnable();
+            }   
+          } else {
+            alert("Có gì đó lỗi vui lòng liên hệ tới nhà phát triển.");
+            ErrorCollection.throwError("")
+          }
+        })
+        .catch((error) => {
+          alert(
+            "An error occurred while submitting the form. Please try again later."
+          );
+          console.error("Error:", error);
+        });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
+window.addEventListener("error", e => {
+  ErrorCollection.throwError(`(${e.lineno}:${e.colno}) - ${e.filename} : ${e.message}`);
+})
    </script>
 </body>
 </html>
